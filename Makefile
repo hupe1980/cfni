@@ -19,10 +19,6 @@ test:
 build:
 	go build -o dist/
 
-.PHONY: ci
-## ci: Run all the tests and code checks
-ci: build test
-
 .PHONY: cleanup
 ## cleanup: Runs cfni cleanup
 cleanup:
