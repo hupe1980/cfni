@@ -32,7 +32,7 @@ func newIAMRoleBackdoorCmd(globalOpts *globalOptions) *cobra.Command {
 				SessionToken:    opts.sessionToken,
 			}
 
-			b, err := c.CreateIAMRoleBackdoorHandler(&cfni.CreateIAMRoleBackdoorOptions{
+			handler, err := c.CreateIAMRoleBackdoorHandler(&cfni.CreateIAMRoleBackdoorOptions{
 				Principal:   opts.principal,
 				LogicalID:   opts.logicalID,
 				RoleName:    opts.roleName,
@@ -42,7 +42,7 @@ func newIAMRoleBackdoorCmd(globalOpts *globalOptions) *cobra.Command {
 				return err
 			}
 
-			return c.CreateInfrastructure(b, "", !s3AccessKey.IsValid())
+			return c.CreateInfrastructure(opts.bucket, handler, "", !s3AccessKey.IsValid())
 		},
 	}
 

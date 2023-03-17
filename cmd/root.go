@@ -34,7 +34,6 @@ type globalOptions struct {
 	attackerProfile string
 	attackerRegion  string
 	bucketProfile   string
-	bucket          string
 	userAgent       string
 }
 
@@ -51,10 +50,7 @@ func newRootCmd(version string) *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&globalOpts.attackerProfile, "attacker-profile", "", "", "attacker AWS profile")
 	cmd.PersistentFlags().StringVarP(&globalOpts.attackerRegion, "attacker-region", "", "", "attacker AWS region")
 	cmd.PersistentFlags().StringVarP(&globalOpts.bucketProfile, "bucket-profile", "", "", "bucket AWS profile")
-	cmd.PersistentFlags().StringVarP(&globalOpts.bucket, "bucket", "b", "", "bucket name (required)")
 	cmd.PersistentFlags().StringVarP(&globalOpts.userAgent, "user-agent", "A", config.DefaultUserAgent, "user-agent to use for sdk calls")
-
-	_ = cmd.MarkPersistentFlagRequired("bucket")
 
 	cmd.AddCommand(
 		newCleanupCmd(globalOpts),
@@ -84,9 +80,8 @@ func newCFNI(globalOpts *globalOptions) (*cfni.CFNI, error) {
 	}
 
 	log.Printf(golog.INFO, "Bucket account: %s [%s]\n", bucketConfig.Account, bucketConfig.Region)
-	log.Printf(golog.INFO, "Bucket: %s\n", globalOpts.bucket)
 
-	cfni := cfni.New(attackerConfig, bucketConfig, globalOpts.bucket, func(o *cfni.Options) {
+	cfni := cfni.New(attackerConfig, bucketConfig, func(o *cfni.Options) {
 		o.Logger = log
 	})
 
@@ -94,6 +89,8 @@ func newCFNI(globalOpts *globalOptions) (*cfni.CFNI, error) {
 }
 
 type attackOptions struct {
+	bucket string
+
 	// S3 Access Key
 	accessKeyID     string
 	secretAccessKey string
@@ -106,6 +103,9 @@ type attackOptions struct {
 }
 
 func addAttackCommands(cmd *cobra.Command, opts *attackOptions) {
+	cmd.Flags().StringVarP(&opts.bucket, "bucket", "b", "", "bucket name (required)")
+	_ = cmd.MarkPersistentFlagRequired("bucket")
+
 	cmd.Flags().StringVarP(&opts.accessKeyID, "s3-access-key-id", "", "", "s3 access key id")
 	cmd.Flags().StringVarP(&opts.secretAccessKey, "s3-secret-access-key", "", "", "s3 secret access key")
 	cmd.Flags().StringVarP(&opts.sessionToken, "s3-session-token", "", "", "s3 session token")

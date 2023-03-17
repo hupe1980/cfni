@@ -33,7 +33,7 @@ func newLambdaExfiltrationCmd(globalOpts *globalOptions) *cobra.Command {
 				SessionToken:    opts.sessionToken,
 			}
 
-			b, err := c.CreateLambdaExfiltrationHandler(&cfni.CreateLambdaExfiltrationOptions{
+			handler, err := c.CreateLambdaExfiltrationHandler(&cfni.CreateLambdaExfiltrationOptions{
 				URL:         opts.url,
 				XORKey:      randomKey(len(opts.url)),
 				S3AccessKey: s3AccessKey,
@@ -42,7 +42,7 @@ func newLambdaExfiltrationCmd(globalOpts *globalOptions) *cobra.Command {
 				return err
 			}
 
-			return c.CreateInfrastructure(b, "", !s3AccessKey.IsValid())
+			return c.CreateInfrastructure(opts.bucket, handler, "", !s3AccessKey.IsValid())
 		},
 	}
 

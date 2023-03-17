@@ -38,7 +38,6 @@ type Options struct {
 
 type CFNI struct {
 	*logger
-	bucket             string
 	attackerAccount    string
 	bucketAccount      string
 	functionClient     *function.Client
@@ -47,7 +46,7 @@ type CFNI struct {
 	opts               Options
 }
 
-func New(attackerConfig *config.Config, bucketConfig *config.Config, bucket string, optFns ...func(o *Options)) *CFNI {
+func New(attackerConfig *config.Config, bucketConfig *config.Config, optFns ...func(o *Options)) *CFNI {
 	opts := Options{
 		FunctionName:          DefaultFunctionName,
 		PermissionStatementID: DefaultPermissionStatementID,
@@ -63,7 +62,6 @@ func New(attackerConfig *config.Config, bucketConfig *config.Config, bucket stri
 
 	return &CFNI{
 		logger:             &logger{opts.Logger},
-		bucket:             bucket,
 		attackerAccount:    attackerConfig.Account,
 		bucketAccount:      bucketConfig.Account,
 		functionClient:     function.New(attackerConfig),
@@ -73,7 +71,7 @@ func New(attackerConfig *config.Config, bucketConfig *config.Config, bucket stri
 	}
 }
 
-func (c *CFNI) CreateInfrastructure(handler []byte, roleARN string, attachPolicy bool) error {
+func (c *CFNI) CreateInfrastructure(bucket string, handler []byte, roleARN string, attachPolicy bool) error {
 	if roleARN == "" {
 		var err error
 
@@ -91,7 +89,7 @@ func (c *CFNI) CreateInfrastructure(handler []byte, roleARN string, attachPolicy
 					{
 						Effect:   "Allow",
 						Action:   []string{"s3:GetObject", "s3:PutObject"},
-						Resource: []string{fmt.Sprintf("arn:aws:s3:::%s/*", c.bucket)},
+						Resource: []string{fmt.Sprintf("arn:aws:s3:::%s/*", bucket)},
 					},
 				},
 			}); err != nil {
@@ -112,17 +110,17 @@ func (c *CFNI) CreateInfrastructure(handler []byte, roleARN string, attachPolicy
 
 	c.logInfof("Lambda Function created: %s\n", functionARN)
 
-	if err := c.functionClient.AddS3Permission(c.opts.PermissionStatementID, functionARN, c.bucket, c.bucketAccount); err != nil {
+	if err := c.functionClient.AddS3Permission(c.opts.PermissionStatementID, functionARN, bucket, c.bucketAccount); err != nil {
 		return err
 	}
 
 	c.logInfof("Permission added: %s\n", c.opts.PermissionStatementID)
 
-	if err := c.notificationClient.CreateBucketNotification(c.opts.NotificationID, c.bucket, functionARN); err != nil {
+	if err := c.notificationClient.CreateBucketNotification(c.opts.NotificationID, bucket, functionARN); err != nil {
 		return err
 	}
 
-	c.logInfof("Bucket Notification for Bucket %s created: %s\n", c.bucket, c.opts.NotificationID)
+	c.logInfof("Bucket Notification for Bucket %s created: %s\n", bucket, c.opts.NotificationID)
 
 	return nil
 }

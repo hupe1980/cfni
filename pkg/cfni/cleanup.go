@@ -7,7 +7,7 @@ import (
 	"github.com/aws/smithy-go"
 )
 
-func (c *CFNI) Cleanup() error {
+func (c *CFNI) Cleanup(bucket string) error {
 	policyARN := fmt.Sprintf("arn:aws:iam::%s:policy/%s", c.attackerAccount, c.opts.PolicyName)
 	if err := c.iamClient.DetachRolePolicy(c.opts.ExecutionRoleName, policyARN); err != nil {
 		var ae smithy.APIError
@@ -36,7 +36,7 @@ func (c *CFNI) Cleanup() error {
 
 	c.logInfof("Lambda Function deleted: %s\n", c.opts.FunctionName)
 
-	if err := c.notificationClient.DeleteBucketNotification(c.opts.NotificationID, c.bucket); err != nil {
+	if err := c.notificationClient.DeleteBucketNotification(c.opts.NotificationID, bucket); err != nil {
 		var ae smithy.APIError
 		if errors.As(err, &ae) && ae.ErrorCode() != "NoSuchEntity" {
 			return err

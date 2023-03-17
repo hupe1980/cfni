@@ -27,7 +27,7 @@ cleanup:
 .PHONY: run
 ## run: Runs cfni
 run:
-	go run main.go iam-role-backdoor -b "${BUCKET}"
+	go run main.go iam-role-backdoor -b "${BUCKET}" -h
 
 .PHONY: help
 ## help: Prints this help message
