@@ -14,6 +14,11 @@ The `--s3-access-key-id`, `--s3-secret-access-key` and optionally `--s3-session-
 
 Everything can also only be done in the bucket account. To do this, the same profile must be specified for the `--attacker-profile` and `--bucket-profile` flags. If no access-key is specified, CFNi tries to give the LambaExecutionRole the required s3:GetObject and s3:PutObject permissions.
 
+## Bucket
+The relevant bucket can be found in the build project (Synth) under artifacts upload location.
+
+![bucket](assets/artifacs_bucket.png)
+
 ## Attacks
 The proof-of-concept currently supports the following attacks:
 - [IAM Role Backdoor](#iam-role-backdoor)
