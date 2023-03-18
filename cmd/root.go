@@ -56,6 +56,7 @@ func newRootCmd(version string) *cobra.Command {
 		newCleanupCmd(globalOpts),
 		newIAMRoleBackdoorCmd(globalOpts),
 		newLambdaExfiltrationCmd(globalOpts),
+		newLambdaSetEnvsCmd(globalOpts),
 	)
 
 	return cmd

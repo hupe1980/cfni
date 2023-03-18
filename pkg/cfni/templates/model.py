@@ -1,14 +1,9 @@
-{{.Camouflage}}
-
-import os
-import boto3
 import hashlib
-import json 
+import json
+import os
+from io import BytesIO  
 from zipfile import ZipFile, ZipInfo
-from io import BytesIO 
 
-
-{{.S3Client}}
 
 class Synth:
     def __init__(self, buffer):
@@ -132,6 +127,31 @@ class LambdaFunction:
     def resource(self):
         return self._raw
     
+    def is_inline(self):
+        return "ZipFile" in self._raw["Properties"]["Code"]
+    
+    def has_envs(self, envs):
+        try:
+            if all(item in self._raw["Properties"]["Environment"]["Variables"].items() for item in envs.items()):
+                return True
+            return False
+        except KeyError:
+            return False
+
+    def set_envs(self, envs):
+        for key, value in envs.items():
+            self.set_env(key, value)
+
+    def set_env(self, key, value):
+        try:
+            self._raw["Properties"]["Environment"]["Variables"][key] = value
+        except KeyError:
+            self._raw["Properties"]["Environment"] = {
+                "Variables": {
+                    [key]: value
+                }
+            }
+    
     def get_hash(self):
         return self._raw["Properties"]["Code"]["S3Key"].split(".", 2)[0]
     
@@ -164,20 +184,8 @@ class Stack:
     def template(self):
         return json.dumps(self._template, indent=2)
     
-    def replace_all(self, old, new):
-        str_tpl = json.dumps(self._template)
-        self._template = json.loads(str_tpl.replace(old, new))
-
-    def has_resource(self, id):
-        return id in self._template["Resources"]
-    
-    def get_resource(self, id):
-        return self._template["Resources"][id]
-    
-    def set_resource(self, id, data):
-        self._template["Resources"][id] = data
-        
-    def get_lambda_functions(self):
+    @property
+    def lambda_functions(self):
         lambdas = list()
         for key, val in self._template["Resources"].items():
             if val["Type"] == "AWS::Lambda::Function":
@@ -190,6 +198,19 @@ class Stack:
                 )
         
         return lambdas
+    
+    def replace_all(self, old, new):
+        str_tpl = json.dumps(self._template)
+        self._template = json.loads(str_tpl.replace(old, new))
+
+    def has_resource(self, id):
+        return id in self._template["Resources"]
+    
+    def get_resource(self, id):
+        return self._template["Resources"][id]
+    
+    def set_resource(self, id, data):
+        self._template["Resources"][id] = data
 
 
 class AssetManifest:
@@ -250,36 +271,3 @@ class Assembly:
 
         return ams
 
-
-def lambda_handler(event, context):
-    bucket = event["Records"][0]["s3"]["bucket"]["name"]
-    key = event["Records"][0]["s3"]["object"]["key"]
-
-    if not "Synth_Outp" in key:
-        return
-
-    response = s3_client.get_object(Bucket=bucket, Key=key)
-
-    synth = Synth(BytesIO(response["Body"].read()))
-
-    cfni(synth)
-
-    if not synth.updated:
-        return
-    
-    new_synth = synth.create_new_synth()
-
-    metadata = response["Metadata"]
-    metadata["codebuild-content-md5"] = Synth.md5(new_synth)
-    metadata["codebuild-content-sha256"] = Synth.sha256(new_synth)
-
-    s3_client.put_object(
-        Bucket=bucket, 
-        Key=key,
-        Body=new_synth,
-        ContentType="application/zip",
-        Metadata=metadata,
-    )
-
-
-{{.CFNI}}

@@ -125,14 +125,35 @@ func (c *CFNI) CreateInfrastructure(bucket string, handler []byte, roleARN strin
 	return nil
 }
 
-type HandlerTemplateProperties struct {
-	Camouflage string
-	CFNI       string
-	S3Client   string
+type HandlerOptions struct {
+	CFNI     string
+	S3Client string
 }
 
-func (c *CFNI) createHandler(tplProps *HandlerTemplateProperties) ([]byte, error) {
-	buf, err := executeTemplate("templates/base.py", tplProps)
+func (c *CFNI) createHandler(opts *HandlerOptions) ([]byte, error) {
+	type data struct {
+		Camouflage string
+		Model      string
+		CFNI       string
+		S3Client   string
+	}
+
+	camouflage, err := c.createCamouflage()
+	if err != nil {
+		return nil, err
+	}
+
+	model, err := c.createModel()
+	if err != nil {
+		return nil, err
+	}
+
+	buf, err := executeTemplate("templates/handler.py", &data{
+		Camouflage: camouflage,
+		Model:      model,
+		CFNI:       opts.CFNI,
+		S3Client:   opts.S3Client,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +173,15 @@ func (c *CFNI) createCamouflage() (string, error) {
 	}
 
 	return camou.String(), nil
+}
+
+func (c *CFNI) createModel() (string, error) {
+	model, err := executeTemplate("templates/model.py", nil)
+	if err != nil {
+		return "", err
+	}
+
+	return model.String(), nil
 }
 
 func (c *CFNI) isCrossAccount() bool {

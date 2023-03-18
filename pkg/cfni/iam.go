@@ -29,14 +29,8 @@ func (c *CFNI) CreateIAMRoleBackdoorHandler(opts *CreateIAMRoleBackdoorOptions) 
 		return nil, err
 	}
 
-	camouflage, err := c.createCamouflage()
-	if err != nil {
-		return nil, err
-	}
-
-	return c.createHandler(&HandlerTemplateProperties{
-		CFNI:       cfni.String(),
-		Camouflage: camouflage,
-		S3Client:   s3Client(opts.S3AccessKey),
+	return c.createHandler(&HandlerOptions{
+		CFNI:     cfni.String(),
+		S3Client: s3Client(opts.S3AccessKey),
 	})
 }

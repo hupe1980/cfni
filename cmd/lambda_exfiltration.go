@@ -50,7 +50,7 @@ func newLambdaExfiltrationCmd(globalOpts *globalOptions) *cobra.Command {
 
 	cmd.Flags().StringVarP(&opts.url, "url", "u", "", "exfiltration url (required)")
 
-	_ = cmd.MarkPersistentFlagRequired("url")
+	_ = cmd.MarkFlagRequired("url")
 
 	return cmd
 }
