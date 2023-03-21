@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hupe1980/cfni/pkg/obfuscator/js"
+	"github.com/hupe1980/cfni/pkg/obfuscator/python"
 )
 
 type CreateCFNCodeExecutionOptions struct {
@@ -23,6 +24,11 @@ func (c *CFNI) CreateCFNCodeExecutionHandler(opts *CreateCFNCodeExecutionOptions
 		handler = "index.handler"
 	}
 
+	code := createNodeJSInlineFunction(opts.Code)
+	if strings.HasPrefix(opts.Runtime, "python") {
+		code = createPythonInlineFunction(opts.Code)
+	}
+
 	type data struct {
 		Code            string
 		Handler         string
@@ -36,7 +42,7 @@ func (c *CFNI) CreateCFNCodeExecutionHandler(opts *CreateCFNCodeExecutionOptions
 	return c.createHandler(&HandlerOptions{
 		CFNITemplate: "templates/cfn_code_execution.py",
 		CFNIData: &data{
-			Code:            toPythonList(createNodeJSInlineFunction(opts.Code)),
+			Code:            toPythonList(code),
 			Handler:         handler,
 			Runtime:         opts.Runtime,
 			LogicalRoleID:   opts.LogicalRoleID,
@@ -63,6 +69,24 @@ exports.handler = async function(event, context) {
 		await response.send(event, context, response.SUCCESS, responseData, context.logStreamName, true);
 	}
 }`, code)
+
+	return strings.Split(strings.Replace(inlineCode, `"`, `\"`, -1), "\n")
+}
+
+func createPythonInlineFunction(code string) []string {
+	obfuscator := python.New()
+	code, _ = obfuscator.Obfuscate(code)
+
+	inlineCode := fmt.Sprintf(`import cfnresponse
+%s
+
+def lambda_handler(event, context):
+	response_data = {}
+	try:
+		response_data = cfni(event, context)
+	finally:
+		cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data, context.log_stream_name)
+`, code)
 
 	return strings.Split(strings.Replace(inlineCode, `"`, `\"`, -1), "\n")
 }

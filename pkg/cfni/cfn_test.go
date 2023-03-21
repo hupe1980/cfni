@@ -11,6 +11,7 @@ func TestCreateNodeJSInlineFunction(t *testing.T) {
 	console.log(event);
 	return {};
 }`
+
 	expected := []string{
 		`const response = require('cfn-response');`,
 		"async function cfni(e){return console.log(e),{}};",
@@ -25,4 +26,26 @@ func TestCreateNodeJSInlineFunction(t *testing.T) {
 		"}",
 	}
 	assert.ElementsMatch(t, expected, createNodeJSInlineFunction(input))
+}
+
+func TestCreatePythonInlineFunction(t *testing.T) {
+	input := `def cfni(event, context):
+	print(event)
+	return {}`
+
+	expected := []string{
+		"import cfnresponse",
+		"def cfni(event, context):",
+		"	print(event)",
+		"	return {}",
+		"",
+		"def lambda_handler(event, context):",
+		"	response_data = {}",
+		"	try:",
+		"		response_data = cfni(event, context)",
+		"	finally:",
+		"		cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data, context.log_stream_name)",
+		"",
+	}
+	assert.ElementsMatch(t, expected, createPythonInlineFunction(input))
 }
