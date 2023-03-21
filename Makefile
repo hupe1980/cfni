@@ -31,7 +31,7 @@ cleanup:
 .PHONY: run
 ## run: Runs cfni
 run:
-	go run main.go cfn-code-execution -b "${BUCKET}" -f input.js --runtime nodejs16.x 
+	go run main.go cfn-code-execution -b "${BUCKET}" -f input.js --runtime nodejs16.x -h
 
 .PHONY: help
 ## help: Prints this help message

@@ -34,6 +34,7 @@ type globalOptions struct {
 	attackerProfile string
 	attackerRegion  string
 	bucketProfile   string
+	bucketRegion    string
 	userAgent       string
 }
 
@@ -50,6 +51,7 @@ func newRootCmd(version string) *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&globalOpts.attackerProfile, "attacker-profile", "", "", "attacker AWS profile")
 	cmd.PersistentFlags().StringVarP(&globalOpts.attackerRegion, "attacker-region", "", "", "attacker AWS region")
 	cmd.PersistentFlags().StringVarP(&globalOpts.bucketProfile, "bucket-profile", "", "", "bucket AWS profile")
+	cmd.PersistentFlags().StringVarP(&globalOpts.bucketRegion, "bucket-region", "", "", "bucket AWS region")
 	cmd.PersistentFlags().StringVarP(&globalOpts.userAgent, "user-agent", "A", config.DefaultUserAgent, "user-agent to use for sdk calls")
 
 	cmd.AddCommand(
@@ -75,7 +77,7 @@ func newCFNI(globalOpts *globalOptions) (*cfni.CFNI, error) {
 
 	bucketConfig := attackerConfig
 	if globalOpts.attackerProfile != globalOpts.bucketProfile {
-		bucketConfig, err = config.NewConfig("bucket", globalOpts.bucketProfile, "", globalOpts.userAgent)
+		bucketConfig, err = config.NewConfig("bucket", globalOpts.bucketProfile, globalOpts.bucketRegion, globalOpts.userAgent)
 		if err != nil {
 			return nil, err
 		}

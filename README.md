@@ -63,6 +63,7 @@ Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
       --bucket-profile string     bucket AWS profile
+      --bucket-region string      bucket AWS region
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```
 
@@ -94,6 +95,7 @@ Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
       --bucket-profile string     bucket AWS profile
+      --bucket-region string      bucket AWS region
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```
 
@@ -122,6 +124,7 @@ Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
       --bucket-profile string     bucket AWS profile
+      --bucket-region string      bucket AWS region
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```
 
@@ -150,6 +153,7 @@ Global Flags:
       --attacker-profile string   attacker AWS profile
       --attacker-region string    attacker AWS region
       --bucket-profile string     bucket AWS profile
+      --bucket-region string      bucket AWS region
   -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
 ```
 
