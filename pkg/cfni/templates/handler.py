@@ -18,7 +18,7 @@ def lambda_handler(event, context):
         return
     
     global ts
-    if ts is not None and (ts - time.time()) < 10:
+    if ts is not None and (ts - time.time()) < 2:
         return  
 
     response = s3_client.get_object(Bucket=bucket, Key=key)

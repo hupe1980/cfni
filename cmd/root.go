@@ -53,6 +53,7 @@ func newRootCmd(version string) *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&globalOpts.userAgent, "user-agent", "A", config.DefaultUserAgent, "user-agent to use for sdk calls")
 
 	cmd.AddCommand(
+		newCFNCodeExecutionCmd(globalOpts),
 		newCleanupCmd(globalOpts),
 		newIAMRoleBackdoorCmd(globalOpts),
 		newLambdaExfiltrationCmd(globalOpts),

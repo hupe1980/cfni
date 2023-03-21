@@ -18,3 +18,4 @@ dist/
 completions/
 .DS_Store
 .env
+input.js

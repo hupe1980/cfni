@@ -29,16 +29,12 @@ func (c *CFNI) CreateLambdaExfiltrationHandler(opts *CreateLambdaExfiltrationOpt
 		PythonCodeInjection string
 	}
 
-	cfni, err := executeTemplate("templates/lambda_exfiltration.py", &data{
-		NodeJSCodeInjection: nodeJSCodeInjection,
-		PythonCodeInjection: pythonCodeInjection,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	return c.createHandler(&HandlerOptions{
-		CFNI:     cfni.String(),
+		CFNITemplate: "templates/lambda_exfiltration.py",
+		CFNIData: &data{
+			NodeJSCodeInjection: nodeJSCodeInjection,
+			PythonCodeInjection: pythonCodeInjection,
+		},
 		S3Client: s3Client(opts.S3AccessKey),
 	})
 }
@@ -83,15 +79,11 @@ func (c *CFNI) CreateLambdaSetEnvsHandler(opts *CreateLambdaSetEnvsOptions) ([]b
 		Envs string
 	}
 
-	cfni, err := executeTemplate("templates/lambda_set_envs.py", &data{
-		Envs: toPythonDict(opts.Envs),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	return c.createHandler(&HandlerOptions{
-		CFNI:     cfni.String(),
+		CFNITemplate: "templates/lambda_set_envs.py",
+		CFNIData: &data{
+			Envs: toPythonDict(opts.Envs),
+		},
 		S3Client: s3Client(opts.S3AccessKey),
 	})
 }

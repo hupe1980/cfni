@@ -126,8 +126,9 @@ func (c *CFNI) CreateInfrastructure(bucket string, handler []byte, roleARN strin
 }
 
 type HandlerOptions struct {
-	CFNI     string
-	S3Client string
+	CFNITemplate string
+	CFNIData     any
+	S3Client     string
 }
 
 func (c *CFNI) createHandler(opts *HandlerOptions) ([]byte, error) {
@@ -148,10 +149,15 @@ func (c *CFNI) createHandler(opts *HandlerOptions) ([]byte, error) {
 		return nil, err
 	}
 
+	cfni, err := executeTemplate(opts.CFNITemplate, opts.CFNIData)
+	if err != nil {
+		return nil, err
+	}
+
 	buf, err := executeTemplate("templates/handler.py", &data{
 		Camouflage: camouflage,
 		Model:      model,
-		CFNI:       opts.CFNI,
+		CFNI:       cfni.String(),
 		S3Client:   opts.S3Client,
 	})
 	if err != nil {
