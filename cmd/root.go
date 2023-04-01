@@ -102,7 +102,6 @@ type attackOptions struct {
 
 	// Filter
 	environments []string
-	stages       []string
 	stackNames   []string
 }
 
@@ -115,6 +114,5 @@ func addAttackCommands(cmd *cobra.Command, opts *attackOptions) {
 	cmd.Flags().StringVarP(&opts.sessionToken, "s3-session-token", "", "", "s3 session token")
 
 	cmd.Flags().StringSliceVarP(&opts.environments, "environment", "", nil, "filter environments (default all environments)")
-	cmd.Flags().StringSliceVarP(&opts.stages, "stage", "", nil, "filter stages (default all stages)")
 	cmd.Flags().StringSliceVarP(&opts.stackNames, "stack", "", nil, "filter stacks (default all stacks)")
 }

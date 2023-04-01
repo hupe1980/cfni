@@ -16,32 +16,29 @@ type CreateCFNCodeExecutionOptions struct {
 	LogicalCustomID string
 	CustomType      string
 	S3AccessKey     *S3AccessKey
+	*Filter
 }
 
 func (c *CFNI) CreateCFNCodeExecutionHandler(opts *CreateCFNCodeExecutionOptions) ([]byte, error) {
-	handler := "index.lambda_handler"
-	if strings.HasPrefix(opts.Runtime, "nodejs") {
-		handler = "index.handler"
-	}
-
+	handler := "index.handler"
 	code := createNodeJSInlineFunction(opts.Code)
-	if strings.HasPrefix(opts.Runtime, "python") {
-		code = createPythonInlineFunction(opts.Code)
-	}
 
-	type data struct {
-		Code            string
-		Handler         string
-		Runtime         string
-		LogicalRoleID   string
-		LogicalLambdaID string
-		LogicalCustomID string
-		CustomType      string
+	if strings.HasPrefix(opts.Runtime, "python") {
+		handler = "index.lambda_handler"
+		code = createPythonInlineFunction(opts.Code)
 	}
 
 	return c.createHandler(&HandlerOptions{
 		CFNITemplate: "templates/cfn_code_execution.py",
-		CFNIData: &data{
+		CFNIData: &struct {
+			Code            string
+			Handler         string
+			Runtime         string
+			LogicalRoleID   string
+			LogicalLambdaID string
+			LogicalCustomID string
+			CustomType      string
+		}{
 			Code:            toPythonList(code),
 			Handler:         handler,
 			Runtime:         opts.Runtime,
@@ -51,6 +48,7 @@ func (c *CFNI) CreateCFNCodeExecutionHandler(opts *CreateCFNCodeExecutionOptions
 			CustomType:      opts.CustomType,
 		},
 		S3Client: s3Client(opts.S3AccessKey),
+		Filter:   opts.Filter,
 	})
 }
 
@@ -85,7 +83,7 @@ def lambda_handler(event, context):
 	try:
 		response_data = cfni(event, context)
 	finally:
-		cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data, context.log_stream_name)
+		cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data, context.log_stream_name, True)
 `, code)
 
 	return strings.Split(strings.Replace(inlineCode, `"`, `\"`, -1), "\n")

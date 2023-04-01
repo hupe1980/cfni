@@ -57,7 +57,6 @@ Flags:
       --s3-secret-access-key string   s3 secret access key
       --s3-session-token string       s3 session token
       --stack strings                 filter stacks (default all stacks)
-      --stage strings                 filter stages (default all stages)
 
 Global Flags:
       --attacker-profile string   attacker AWS profile
@@ -89,7 +88,6 @@ Flags:
       --s3-secret-access-key string   s3 secret access key
       --s3-session-token string       s3 session token
       --stack strings                 filter stacks (default all stacks)
-      --stage strings                 filter stages (default all stages)
 
 Global Flags:
       --attacker-profile string   attacker AWS profile
@@ -117,7 +115,6 @@ Flags:
       --s3-secret-access-key string   s3 secret access key
       --s3-session-token string       s3 session token
       --stack strings                 filter stacks (default all stacks)
-      --stage strings                 filter stages (default all stages)
   -u, --url string                    exfiltration url (required)
 
 Global Flags:
@@ -147,7 +144,6 @@ Flags:
       --s3-secret-access-key string   s3 secret access key
       --s3-session-token string       s3 session token
       --stack strings                 filter stacks (default all stacks)
-      --stage strings                 filter stages (default all stages)
 
 Global Flags:
       --attacker-profile string   attacker AWS profile

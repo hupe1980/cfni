@@ -125,26 +125,25 @@ func (c *CFNI) CreateInfrastructure(bucket string, handler []byte, roleARN strin
 	return nil
 }
 
+type Filter struct {
+	Environments []string
+	StackNames   []string
+}
+
 type HandlerOptions struct {
 	CFNITemplate string
 	CFNIData     any
 	S3Client     string
+	*Filter
 }
 
 func (c *CFNI) createHandler(opts *HandlerOptions) ([]byte, error) {
-	type data struct {
-		Camouflage string
-		Model      string
-		CFNI       string
-		S3Client   string
-	}
-
 	camouflage, err := c.createCamouflage()
 	if err != nil {
 		return nil, err
 	}
 
-	model, err := c.createModel()
+	model, err := executeTemplate("templates/model.py", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -154,9 +153,14 @@ func (c *CFNI) createHandler(opts *HandlerOptions) ([]byte, error) {
 		return nil, err
 	}
 
-	buf, err := executeTemplate("templates/handler.py", &data{
+	buf, err := executeTemplate("templates/handler.py", &struct {
+		Camouflage string
+		Model      string
+		CFNI       string
+		S3Client   string
+	}{
 		Camouflage: camouflage,
-		Model:      model,
+		Model:      model.String(),
 		CFNI:       cfni.String(),
 		S3Client:   opts.S3Client,
 	})

@@ -33,6 +33,11 @@ cfni cfn-code-execution --attacker-profile ap --bucket-profile bp --bucket pipel
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			code, err := os.ReadFile(opts.filename)
+			if err != nil {
+				return err
+			}
+
 			c, err := newCFNI(globalOpts)
 			if err != nil {
 				return err
@@ -44,19 +49,18 @@ cfni cfn-code-execution --attacker-profile ap --bucket-profile bp --bucket pipel
 				SessionToken:    opts.sessionToken,
 			}
 
-			b, err := os.ReadFile(opts.filename)
-			if err != nil {
-				return err
-			}
-
 			handler, err := c.CreateCFNCodeExecutionHandler(&cfni.CreateCFNCodeExecutionOptions{
 				S3AccessKey:     s3AccessKey,
 				Runtime:         opts.runtime,
-				Code:            string(b),
+				Code:            string(code),
 				LogicalRoleID:   opts.logicalRoleID,
 				LogicalLambdaID: opts.logicalLambdaID,
 				LogicalCustomID: opts.logicalCustomID,
 				CustomType:      opts.customType,
+				Filter: &cfni.Filter{
+					Environments: opts.environments,
+					StackNames:   opts.stackNames,
+				},
 			})
 			if err != nil {
 				return err

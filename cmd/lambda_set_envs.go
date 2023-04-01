@@ -33,6 +33,10 @@ func newLambdaSetEnvsCmd(globalOpts *globalOptions) *cobra.Command {
 			handler, err := c.CreateLambdaSetEnvsHandler(&cfni.CreateLambdaSetEnvsOptions{
 				Envs:        opts.envs,
 				S3AccessKey: s3AccessKey,
+				Filter: &cfni.Filter{
+					Environments: opts.environments,
+					StackNames:   opts.stackNames,
+				},
 			})
 			if err != nil {
 				return err

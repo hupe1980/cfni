@@ -37,6 +37,10 @@ func newIAMRoleBackdoorCmd(globalOpts *globalOptions) *cobra.Command {
 				LogicalID:   opts.logicalID,
 				RoleName:    opts.roleName,
 				S3AccessKey: s3AccessKey,
+				Filter: &cfni.Filter{
+					Environments: opts.environments,
+					StackNames:   opts.stackNames,
+				},
 			})
 			if err != nil {
 				return err

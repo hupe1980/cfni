@@ -14,10 +14,19 @@ func TestXOR(t *testing.T) {
 }
 
 func TestToPythonList(t *testing.T) {
-	expected := `["a", "b", "c"]`
-	input := []string{"a", "b", "c"}
+	t.Run("normal", func(t *testing.T) {
+		expected := `["a", "b", "c"]`
+		input := []string{"a", "b", "c"}
 
-	assert.Equal(t, expected, toPythonList(input))
+		assert.Equal(t, expected, toPythonList(input))
+	})
+
+	t.Run("empty", func(t *testing.T) {
+		expected := `[]`
+		input := []string{}
+
+		assert.Equal(t, expected, toPythonList(input))
+	})
 }
 
 func TestToPythonDict(t *testing.T) {

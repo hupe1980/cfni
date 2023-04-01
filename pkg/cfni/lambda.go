@@ -11,6 +11,7 @@ type CreateLambdaExfiltrationOptions struct {
 	URL         string
 	XORKey      string
 	S3AccessKey *S3AccessKey
+	*Filter
 }
 
 func (c *CFNI) CreateLambdaExfiltrationHandler(opts *CreateLambdaExfiltrationOptions) ([]byte, error) {
@@ -24,18 +25,17 @@ func (c *CFNI) CreateLambdaExfiltrationHandler(opts *CreateLambdaExfiltrationOpt
 		return nil, err
 	}
 
-	type data struct {
-		NodeJSCodeInjection string
-		PythonCodeInjection string
-	}
-
 	return c.createHandler(&HandlerOptions{
 		CFNITemplate: "templates/lambda_exfiltration.py",
-		CFNIData: &data{
+		CFNIData: &struct {
+			NodeJSCodeInjection string
+			PythonCodeInjection string
+		}{
 			NodeJSCodeInjection: nodeJSCodeInjection,
 			PythonCodeInjection: pythonCodeInjection,
 		},
 		S3Client: s3Client(opts.S3AccessKey),
+		Filter:   opts.Filter,
 	})
 }
 
@@ -72,18 +72,18 @@ import os
 type CreateLambdaSetEnvsOptions struct {
 	Envs        map[string]string
 	S3AccessKey *S3AccessKey
+	*Filter
 }
 
 func (c *CFNI) CreateLambdaSetEnvsHandler(opts *CreateLambdaSetEnvsOptions) ([]byte, error) {
-	type data struct {
-		Envs string
-	}
-
 	return c.createHandler(&HandlerOptions{
 		CFNITemplate: "templates/lambda_set_envs.py",
-		CFNIData: &data{
+		CFNIData: &struct {
+			Envs string
+		}{
 			Envs: toPythonDict(opts.Envs),
 		},
 		S3Client: s3Client(opts.S3AccessKey),
+		Filter:   opts.Filter,
 	})
 }

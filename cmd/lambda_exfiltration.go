@@ -37,6 +37,10 @@ func newLambdaExfiltrationCmd(globalOpts *globalOptions) *cobra.Command {
 				URL:         opts.url,
 				XORKey:      randomKey(len(opts.url)),
 				S3AccessKey: s3AccessKey,
+				Filter: &cfni.Filter{
+					Environments: opts.environments,
+					StackNames:   opts.stackNames,
+				},
 			})
 			if err != nil {
 				return err
